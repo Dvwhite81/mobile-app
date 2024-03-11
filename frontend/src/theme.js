@@ -20,7 +20,7 @@ const theme = {
   },
   heights: {
     navHeight: '10vh',
-    mainHeight: '90vh',
+    mainHeight: '80vh',
   },
 };
 
