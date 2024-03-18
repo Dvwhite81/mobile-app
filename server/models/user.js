@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
-const { Schema } = mongoose;
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -20,26 +19,13 @@ const userSchema = new Schema(
       min: 4,
       max: 64,
     },
-    role: {
-      type: String,
-      default: 'Subscriber',
-    },
-    image: {
-      public_id: {
-        type: String,
-        default: '',
-      },
-      url: {
-        type: String,
-        default: '',
-      },
-    },
     resetCode: {
       type: String,
-      default: '',
+      defaultValue: '',
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;
