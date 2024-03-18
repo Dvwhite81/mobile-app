@@ -15,11 +15,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-console.log('cloudinary');
-console.log('name:', process.env.CLOUDINARY_NAME);
-console.log('key:', process.env.CLOUDINARY_KEY);
-console.log('secret:', process.env.CLOUDINARY_SECRET);
-
 export const register = async (req, res) => {
   console.log('Register Hit');
 
