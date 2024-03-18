@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { nanoid } from 'nanoid';
+import cloudinary from 'cloudinary';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -7,6 +8,17 @@ import User from '../models/user.js';
 import { hashPassword, comparePassword } from '../utils/auth.js';
 
 import { EmailParams, MailerSend, Recipient } from 'mailersend';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+});
+
+console.log('cloudinary');
+console.log('name:', process.env.CLOUDINARY_NAME);
+console.log('key:', process.env.CLOUDINARY_KEY);
+console.log('secret:', process.env.CLOUDINARY_SECRET);
 
 export const register = async (req, res) => {
   console.log('Register Hit');
@@ -154,3 +166,35 @@ export const resetPassword = async (req, res) => {
     res.json({ ok: false });
   }
 };
+
+export const uploadImage = async (req, res) => {
+  try {
+    const result = await cloudinary.uploader.upload(req.body.image, {
+      public_id: nanoid(),
+      resource_type: 'jpg',
+    });
+
+    console.log('uploadImage result:', result);
+
+    const user = await User.findByIdAndUpdate(
+      req.body.user._id,
+      {
+        image: {
+          public_id: result.public_id,
+          url: result.secure_url,
+        },
+      },
+      { new: true },
+    );
+
+    console.log('uploadImage user:', user);
+
+    return res.json({
+      name: user.name,
+      email: user.email,
+      image: user.image,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -19,9 +19,19 @@ const userSchema = new mongoose.Schema(
       min: 4,
       max: 64,
     },
+    image: {
+      url: {
+        type: String,
+        default: '',
+      },
+      public_id: {
+        type: String,
+        default: '',
+      },
+    },
     resetCode: {
       type: String,
-      defaultValue: '',
+      default: '',
     },
   },
   { timestamps: true }

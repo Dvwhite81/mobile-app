@@ -4,6 +4,7 @@ import {
   login,
   forgotPassword,
   resetPassword,
+  uploadImage,
 } from '../controllers/auth.js';
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
+router.post('/upload-image', uploadImage);
 
 export default router;
