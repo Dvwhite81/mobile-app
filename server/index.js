@@ -5,8 +5,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 dotenv.config();
 
-
 import authRoutes from './routes/auth.js';
+import linkRoutes from './routes/link.js';
 
 const app = express();
 
@@ -24,5 +24,6 @@ app.use(cors());
 app.use(morgan('dev'));
 
 app.use('/api', authRoutes);
+app.use('/api', linkRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
