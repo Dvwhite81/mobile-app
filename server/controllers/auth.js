@@ -7,7 +7,7 @@ dotenv.config();
 import User from '../models/user.js';
 import { hashPassword, comparePassword } from '../utils/auth.js';
 
-import { EmailParams, MailerSend, Recipient } from 'mailersend';
+import { EmailParams, MailerSend, Recipient, Sender } from 'mailersend';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -100,33 +100,35 @@ export const login = async (req, res) => {
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
-
+  console.log('email:', email);
   const user = await User.findOne({ email });
-
+  console.log('user:', user);
   if (!user) {
     return res.json({ error: 'User not found' });
   }
 
   const resetCode = nanoid(5).toUpperCase();
-
+  console.log('resetCode:', resetCode);
   user.resetCode = resetCode;
   user.save();
-
+  console.log('api_key:', process.env.API_KEY);
+  console.log('email_from:', process.env.EMAIL_FROM);
   const mailersend = new MailerSend({
-    api_key: process.env.API_KEY,
+    apiKey: process.env.API_KEY,
   });
 
+  const sender = new Sender(process.env.EMAIL_FROM, 'Management');
   const recipients = [new Recipient(user.email, 'Recipient')];
 
   const emailParams = new EmailParams()
-    .setFrom(process.env.EMAIL_FROM)
-    .setRecipients(recipients)
+    .setFrom(sender)
+    .setTo(recipients)
     .setSubject('Password reset code')
-    .setHtml(`Your password reset code is ${resetCode}`)
+    .setHtml(`<h1>Your password reset code is ${resetCode}</h1>`)
     .setText(`Your password reset code is ${resetCode}`);
 
   try {
-    const data = await mailersend.send(emailParams);
+    const data = await mailersend.email.send(emailParams);
     console.log('data:', data);
     res.json({ ok: true });
   } catch (err) {
@@ -179,7 +181,7 @@ export const uploadImage = async (req, res) => {
           url: result.secure_url,
         },
       },
-      { new: true },
+      { new: true }
     );
 
     console.log('uploadImage user:', user);
@@ -192,4 +194,27 @@ export const uploadImage = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+export const updatePassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password || password.length < 4) {
+      return res.json({
+        error: 'Password is required and must be at least 4 characters',
+      });
+    } else {
+      const hashedPassword = await hashPassword(password);
+      const user = await User.findByIdAndUpdate(req.body.user.user._id, {
+        password: hashedPassword,
+      });
+
+      user.password = undefined;
+      user.secret = undefined;
+      return res.json(user);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
